@@ -145,7 +145,7 @@ docker-compose up -d
 
 #### MailHog UI available at http://localhost:8025
 
-#### App  Example http://localhost:8080/weather?city=Kyiv if exit
+#### App weatheralertservicebd Example req http://localhost:8080/weather?city=Kyiv if exit
 ### Manual MySQL 
 ```sql
 CREATE DATABASE weatheralertservicebd;
