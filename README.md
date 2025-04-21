@@ -25,19 +25,37 @@ This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google
 ```
 
 ### Layers
-- **cmd/app**: Entry point, bootstraps DI, starts scheduler and HTTP server
-- **internal/http**:
-  - **controllers**: HTTP handlers, response formatting
-  - **routes**: Route registration with DI
-- **pkg**:
-  - **config**: Environment loading
-  - **database**: MySQL connection and migrations
-  - **models**: GORM models for Weather and Subscription
-  - **repository**: Interfaces and GORM-based implementations
-  - **services**: Business logic (weather retrieval, subscription management, notification evaluation, unit tests)
-  - **utils**: Email sending utility
-- **internal/scheduler**: Cron job for daily alert checks
-- **wire.go**: Google Wire setup for dependency injection
+### Project Directory Structure
+
+```
+Weather-Alert-Service/
+├── cmd/
+│   └── app/
+│       └── main.go         # Entry point, bootstraps DI, starts scheduler and HTTP server
+├── internal/
+│   ├── http/
+│   │   ├── controllers/    # HTTP handlers (controllers)
+│   │   └── routes/         # Route registration with DI
+│   └── scheduler/          # Cron job for daily alert checks
+├── pkg/
+│   ├── config/             # Environment loading (Config struct)
+│   ├── database/           # MySQL connection and migrations
+│   ├── models/             # GORM models for Weather and Subscription
+│   ├── repository/         # Interfaces and GORM-based implementations
+│   ├── services/           # Business logic (weather retrieval, subscription management, notifications, unit tests)
+│   ├── utils/              # Email sending utility, error helpers
+│   └── validation/         # Custom validators for request binding
+├── app/                    # Google Wire setup and InitializeApp
+│   └── wire.go             # DI definitions
+├── wire.go                 # (Alternative root DI definitions, may be removed)
+├── docker-compose.yml      # Docker Compose for MySQL and MailHog
+├── .env.example            # Sample environment variables
+├── go.mod
+├── go.sum
+└── README.md               # Project overview, setup, usage
+```
+
+
 
 ## Key Architectural Decisions
 - **Dependency Injection (Google Wire)**: Ensures loose coupling, easier testing, and clear wiring of dependencies in `InitializeApp()`.
