@@ -46,21 +46,47 @@ This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google
 - **Repository Pattern**: Abstracts data access, facilitating mocking in unit tests.
 - **Layered Structure**: Separates concerns for controllers, services, repositories, and database logic.
 
-## Technologies
+## 🚀 Technologies
 
-- **Language:** Go 1.24+
-- **Web Framework:** gin‑gonic/gin
-- **HTTP Validator:** go-playground/validator/v10
-- **Environment Loader:** joho/godotenv
-- **ORM:** GORM (`gorm.io/gorm`)
-- **SQL Driver:** GORM MySQL Driver (`gorm.io/driver/mysql`)
-- **Database:** MySQL (production), SQLite (integration tests)
-- **Dependency Injection:** Google Wire (`github.com/google/wire`)
-- **Scheduler:** robfig/cron (`github.com/robfig/cron/v3`)
-- **Email:** gomail (`gopkg.in/gomail.v2`) + MailHog (or SMTP)
-- **Testing:** testify (`github.com/stretchr/testify`)
-- **Containerization:** Docker & Docker Compose
-- **API Documentation:** swaggo/swag (`github.com/swaggo/swag`)
+- **Language & Version**
+  - Go 1.24.2
+
+- **Web Framework & Routing**
+  - [Gin](https://github.com/gin-gonic/gin) (v1.10.0)
+
+- **Validation**
+  - [go-playground/validator](https://github.com/go-playground/validator) (v10.26.0)
+
+- **Dependency Injection**
+  - [Google Wire](https://github.com/google/wire) (v0.6.0)
+
+- **Configuration**
+  - [godotenv](https://github.com/joho/godotenv) (v1.5.1)
+
+- **Scheduling**
+  - [robfig/cron/v3](https://github.com/robfig/cron) (v3.0.1)
+
+- **Logging**
+  - [uber-go/zap](https://github.com/uber-go/zap) (v1.27.0)
+
+- **Email**
+  - [gomail](https://github.com/go-gomail/gomail) (v2.0.0)
+
+- **ORM & Database Drivers**
+  - [GORM](https://gorm.io) (v1.25.12)
+    - MySQL driver (v1.5.7)
+    - SQLite driver (v1.5.7)
+
+- **Testing & Mocks**
+  - [stretchr/testify](https://github.com/stretchr/testify) (v1.9.0)
+
+- **Indirect Dependencies** (selected)
+  - `github.com/go-sql-driver/mysql` (MySQL driver for GORM)
+  - `github.com/mattn/go-sqlite3` (SQLite driver)
+  - various others pulled in by GORM, Gin, Wire, etc.
+
+> See **go.mod** for the full list of modules and versions.
+
 
 ## Running Locally
 
@@ -147,5 +173,13 @@ You can integrate Swagger UI by generating OpenAPI spec with `swaggo/swag`, then
 ---
 Feel free to explore and extend the service according to your needs!
 
+
+## Testing Scenarios
+
+| #  | Scenario                                                     | Precondition / Setup                                                                                                                                                    | Trigger / Input                                                                                           | Expected Outcome                                                                                             | Example Email Payload                                                                                                                      |
+|----|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| 1  | Verified subscription + condition matches → send alert        | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":4,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: `{"email":"alice@example.com","city":"Lviv","condition":"temp<5","verified":true}` | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • Email sent to `alice@example.com`<br/>• `LastSent` updated                                                   | **To:** alice@example.com<br/>**Subject:** Weather Alert for Lviv<br/>**Body:** Condition temp<5 met: current temp 4.0°C                     |
+| 2  | Verified subscription + condition does **not** match → no alert | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":6,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: same as above                                         | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • No email sent<br/>• `LastSent` remains unchanged                                                              | *n/a*                                                                                                                                         |
+| 3  | Unverified subscription → never send alert                   | **DB:**<br/>  • Weather: any<br/>  • Subscription: `{"email":"bob@example.com","city":"Kyiv","condition":"rain","verified":false}`                                          | Cron job runs                                                                                              | • No email sent<br/>• `LastSent` remains `nil`                                                                  | *n/a*                                                                                                                                         |
 
 
