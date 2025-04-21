@@ -144,6 +144,9 @@ SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=
+CRON_SCHEDULE=@daily    # default: once per day at midnight
+# For testing you can override to every minute:
+# CRON_SCHEDULE="*/1 * * * *"
 ```
 
 ### Docker Compose / Aap, DB, MailHog
