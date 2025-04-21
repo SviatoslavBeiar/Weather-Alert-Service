@@ -67,8 +67,9 @@ Weather-Alert-Service/
 ├── app/                    # Google Wire setup and InitializeApp
 │   └── wire.go             # DI definitions
 ├── wire.go                 # (Alternative root DI definitions, may be removed)
+├── Dockerfile
 ├── docker-compose.yml      # Docker Compose for MySQL and MailHog
-├── .env.example            # Sample environment variables
+├── .env                    # environment variables
 ├── go.mod
 ├── go.sum
 └── README.md               # Project overview, setup, usage
