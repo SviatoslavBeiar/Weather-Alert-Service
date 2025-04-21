@@ -16,7 +16,6 @@ type SubscriptionService struct {
 	WeatherRepo repository.WeatherRepository
 }
 
-// NewSubscriptionService створює сервіс підписок
 func NewSubscriptionService(
 	subRepo repository.SubscriptionRepository,
 	weatherRepo repository.WeatherRepository,
@@ -27,7 +26,6 @@ func NewSubscriptionService(
 	}
 }
 
-// Create створює підписку з валідацією міста
 func (s *SubscriptionService) Create(sub *models.Subscription) error {
 	log.Printf("Create: start subscription for email=%s, city=%s", sub.Email, sub.City)
 

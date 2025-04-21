@@ -11,7 +11,6 @@ import (
 	"myapp/pkg/validation"
 )
 
-// NewRouter приймає вже створені контролери
 func NewRouter(
 	cfg config.Config,
 	db *gorm.DB,

@@ -47,7 +47,6 @@ func (r *GormRepo) FindByToken(token string) (models2.Subscription, error) {
 	return sub, err
 }
 
-// Переіменований метод
 func (r *GormRepo) UpdateSubscription(sub *models2.Subscription) error {
 	return database.DB.Save(sub).Error
 }

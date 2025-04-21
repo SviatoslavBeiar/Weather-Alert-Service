@@ -9,8 +9,6 @@ import (
 	"myapp/pkg/services"
 )
 
-// spyRepo збирає аргументи викликів repository.WeatherRepository
-// і зберігає lastUpdates для перевірки полів
 type spyRepo struct {
 	lastCity      string
 	lastUpdates   map[string]interface{}

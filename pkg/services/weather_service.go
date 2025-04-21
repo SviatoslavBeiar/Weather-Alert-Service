@@ -6,19 +6,15 @@ import (
 	"myapp/pkg/repository"
 )
 
-// WeatherService керує даними про погоду
-// Додано базове логування
 type WeatherService struct {
 	Repo repository.WeatherRepository
 }
 
-// NewWeatherService створює новий сервіс погоди
 func NewWeatherService(r repository.WeatherRepository) *WeatherService {
 	log.Println("Initializing WeatherService")
 	return &WeatherService{Repo: r}
 }
 
-// GetCurrentWeather повертає поточну погоду для міста
 func (s *WeatherService) GetCurrentWeather(city string) (models.Weather, error) {
 	log.Printf("GetCurrentWeather called with city=%q", city)
 	w, err := s.Repo.GetByCity(city)
@@ -30,7 +26,6 @@ func (s *WeatherService) GetCurrentWeather(city string) (models.Weather, error) 
 	return w, nil
 }
 
-// SaveWeather зберігає нові дані про погоду
 func (s *WeatherService) SaveWeather(w *models.Weather) error {
 	log.Printf("SaveWeather called for city=%q: %+v", w.City, w)
 	err := s.Repo.Save(w)
@@ -42,7 +37,6 @@ func (s *WeatherService) SaveWeather(w *models.Weather) error {
 	return nil
 }
 
-// UpdateWeather оновлює та повертає свіжу погоду
 func (s *WeatherService) UpdateWeather(city string, inp UpdateInput) (models.Weather, error) {
 	log.Printf("UpdateWeather called for city=%q with updates=%+v", city, inp)
 	updates := map[string]interface{}{
@@ -64,8 +58,6 @@ func (s *WeatherService) UpdateWeather(city string, inp UpdateInput) (models.Wea
 	return w, nil
 }
 
-// UpdateInput описує поля для оновлення погоди
-// binding-теґи забезпечують валідацію на рівні контролера
 type UpdateInput struct {
 	Temperature float64 `json:"temperature" binding:"required"`
 	Humidity    int     `json:"humidity"    binding:"required,gte=0,lte=100"`
