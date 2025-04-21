@@ -29,7 +29,7 @@ vendor/
 Thumbs.db
 
 # Файли Wire‑генератора
-wire_gen.go
+#wire_gen.go
 
 # Логи, тимчасовий кеш
 *.log

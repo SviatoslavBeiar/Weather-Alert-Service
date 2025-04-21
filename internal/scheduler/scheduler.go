@@ -2,33 +2,38 @@ package scheduler
 
 import (
 	"log"
-	"myapp/pkg/database"
-	"myapp/pkg/repository"
-	services2 "myapp/pkg/services"
+	"os"
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"myapp/pkg/database"
+	"myapp/pkg/repository"
+	"myapp/pkg/services"
 )
 
 func Start() {
 
+	spec := os.Getenv("CRON_SCHEDULE")
+	if spec == "" {
+		spec = "@daily"
+	}
+
 	repo := repository.NewGormRepo()
-	ws := services2.NewWeatherService(repo)
-	ss := services2.NewSubscriptionService(repo, repo)
+	ws := services.NewWeatherService(repo)
+	ss := services.NewSubscriptionService(repo, repo)
 
-	c := cron.New()
-	job := cron.FuncJob(func() {
+	c := cron.New(cron.WithSeconds())
+
+	job := func() {
 		now := time.Now()
-
 		subs, err := ss.ListVerified()
 		if err != nil {
 			log.Println("subscription fetch error:", err)
 			return
 		}
-
 		for _, sub := range subs {
 
-			if sub.LastSent != nil && now.Sub(*sub.LastSent) < 1*time.Minute {
+			if sub.LastSent != nil && now.Sub(*sub.LastSent) < 24*time.Hour {
 				continue
 			}
 
@@ -38,18 +43,21 @@ func Start() {
 				continue
 			}
 
-			sent, err := services2.EvaluateAndNotify(sub, w)
+			sent, err := services.EvaluateAndNotify(sub, w)
 			if err != nil {
 				log.Println("notify error:", err)
 				continue
 			}
-
 			if sent {
+
 				database.DB.Model(&sub).Update("LastSent", now)
 			}
 		}
-	})
+	}
 
-	c.Schedule(cron.Every(1*time.Minute), job)
+	if _, err := c.AddFunc(spec, job); err != nil {
+		log.Fatalf("invalid CRON_SCHEDULE %q: %v", spec, err)
+	}
+
 	c.Start()
 }
