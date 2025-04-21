@@ -135,7 +135,7 @@ SMTP_USER=
 SMTP_PASS=
 ```
 
-### Docker Compose
+### Docker Compose / Aap, DB, MailHog
 ```bash
 git clone https://github.com/SviatoslavBeiar/Weather-Alert-Service.git
 cd Weather-Alert-Service
