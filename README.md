@@ -1,7 +1,18 @@
 # Weather Alert Service
+## Table of Contents
 
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Architecture](#architecture)
+- [Layers](#layers)
+- [Project Directory Structure](#project-directory-structure)
+- [Key Architectural Decisions](#key-architectural-decisions)
+- [🚀 Technologies](#-technologies)
+- [Running Locally](#running-locally)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Testing Scenarios](#testing-scenarios)
 # Overview
-Overview
 Weather Alert Service is a Go-based microservice focusing on verified email subscriptions before sending any alerts. Users must confirm their subscription via email; only then will they receive automated notifications when defined weather conditions are met.
 
 ## Key Features
@@ -136,6 +147,7 @@ SMTP_PASS=
 ```
 
 ### Docker Compose / Aap, DB, MailHog
+#### DO not fogert run docker
 ```bash
 git clone https://github.com/SviatoslavBeiar/Weather-Alert-Service.git
 cd Weather-Alert-Service
@@ -180,11 +192,11 @@ CREATE DATABASE weatheralertservicebd;
 }
 ```
 ## Testing Scenarios
-
+#### Confirm email via MailHog
 | #  | Scenario                                                     | Precondition / Setup                                                                                                                                                    | Trigger / Input                                                                                           | Expected Outcome                                                                                             | Example Email Payload                                                                                                                      |
 |----|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| 1  | Verified subscription + condition matches → send alert        | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":4,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: `{"email":"alice@example.com","city":"Lviv","condition":"temp<5","verified":true}` | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • Email sent to `alice@example.com`<br/>• `LastSent` updated                                                   | **To:** alice@example.com<br/>**Subject:** Weather Alert for Lviv<br/>**Body:** Condition temp<5 met: current temp 4.0°C                     |
+| 1  | Verified subscription + condition matches → send alert        | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":4,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: `{"email":"alice@example.com","city":"Lviv","condition":"temp<5"}` | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • Email sent to `alice@example.com`<br/>• `LastSent` updated                                                   | **To:** alice@example.com<br/>**Subject:** Weather Alert for Lviv<br/>**Body:** Condition temp<5 met: current temp 4.0°C                     |
 | 2  | Verified subscription + condition does **not** match → no alert | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":6,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: same as above                                         | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • No email sent<br/>• `LastSent` remains unchanged                                                              | *n/a*                                                                                                                                         |
-| 3  | Unverified subscription → never send alert                   | **DB:**<br/>  • Weather: any<br/>  • Subscription: `{"email":"bob@example.com","city":"Kyiv","condition":"rain","verified":false}`                                          | Cron job runs                                                                                              | • No email sent<br/>• `LastSent` remains `nil`                                                                  | *n/a*                                                                                                                                         |
+| 3  | Unverified subscription → never send alert                   | **DB:**<br/>  • Weather: any<br/>  • Subscription: `{"email":"bob@example.com","city":"Kyiv","condition":"Clear"}`                                          | Cron job runs                                                                                              | • No email sent<br/>• `LastSent` remains `nil`                                                                  | *n/a*                                                                                                                                         |
 
 
