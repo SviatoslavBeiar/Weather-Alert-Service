@@ -34,7 +34,7 @@ This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google
   - **database**: MySQL connection and migrations
   - **models**: GORM models for Weather and Subscription
   - **repository**: Interfaces and GORM-based implementations
-  - **services**: Business logic (weather retrieval, subscription management, notification evaluation)
+  - **services**: Business logic (weather retrieval, subscription management, notification evaluation, unit tests)
   - **utils**: Email sending utility
 - **internal/scheduler**: Cron job for daily alert checks
 - **wire.go**: Google Wire setup for dependency injection
@@ -96,7 +96,7 @@ This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google
 - MySQL (or use Docker Compose)
 
 ### Environment Variables
-Create a `.env` file in project root:
+Create a `.env` file in project root(already created):
 ```ini
 DB_USER=root
 DB_PASS=
@@ -111,23 +111,19 @@ SMTP_PASS=yourpassword
 
 ### Docker Compose
 ```bash
+git clone https://github.com/SviatoslavBeiar/Weather-Alert-Service.git
+cd Weather-Alert-Service
 docker-compose up -d
-docker-compose run app wire  # generate wire_gen.go
-go run cmd/app/main.go
 ```
+#### MySQL available at localhost:3306
 
-### Manual MySQL Setup
+#### MailHog UI available at http://localhost:8025
+
+#### App  Example http://localhost:8080/weather?city=Kyiv if exit
+### Manual MySQL 
 ```sql
 CREATE DATABASE weatheralertservicebd;
 ```
-
-### Run Application
-```bash
-go install github.com/google/wire/cmd/wire@latest
-wire                # generate DI code
-go run cmd/app/main.go
-```
-
 ## API Endpoints
 
 | Method | Endpoint                         | Description                                     |
@@ -157,23 +153,6 @@ go run cmd/app/main.go
   "condition": "temp<0"
 }
 ```
-
-## Testing
-- **Unit Tests**: `go test ./pkg/services` covers business logic
-- **Integration Tests**: `go test ./tests/integration` exercises full HTTP API
-
-```bash
-go test ./pkg/services -v
-go test ./tests/integration -v
-```
-
-## Swagger / OpenAPI (Optional)
-You can integrate Swagger UI by generating OpenAPI spec with `swaggo/swag`, then serve at `/docs`.
-
----
-Feel free to explore and extend the service according to your needs!
-
-
 ## Testing Scenarios
 
 | #  | Scenario                                                     | Precondition / Setup                                                                                                                                                    | Trigger / Input                                                                                           | Expected Outcome                                                                                             | Example Email Payload                                                                                                                      |
