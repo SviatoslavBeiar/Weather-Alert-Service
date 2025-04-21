@@ -1,12 +1,31 @@
 # Weather Alert Service
+## Table of Contents
 
-## Overview
-Weather Alert Service is a Go-based microservice that provides:
-- Retrieving current weather data for cities
-- User subscriptions to weather alerts based on custom conditions with email confiramatioin
-- Automated daily email notifications when conditions are met
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [Architecture](#architecture)
+- [Layers](#layers)
+- [Project Directory Structure](#project-directory-structure)
+- [Key Architectural Decisions](#key-architectural-decisions)
+- [🚀 Technologies](#-technologies)
+- [Running Locally](#running-locally)
+- [Environment Variables](#environment-variables)
+- [API Endpoints](#api-endpoints)
+- [Testing Scenarios](#testing-scenarios)
+# Overview
+Weather Alert Service is a Go-based microservice focusing on verified email subscriptions before sending any alerts. Users must confirm their subscription via email; only then will they receive automated notifications when defined weather conditions are met.
 
-This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google Wire for dependency injection.
+## Key Features
+### Current Weather Retrieval
+- Fetch the latest weather data (temperature, humidity, sky condition) for any city.
+
+### Email‑Confirmed Subscriptions
+ - Users subscribe with a custom condition (e.g., temp<0), receive a confirmation email, and only verified email addresses will be alerted.
+
+### Automated Alerts
+- A daily cron job evaluates registered conditions and sends alerts only for verified subscriptions.
+
+### This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google Wire for dependency injection.
 
 ## Architecture
 
@@ -25,19 +44,37 @@ This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google
 ```
 
 ### Layers
-- **cmd/app**: Entry point, bootstraps DI, starts scheduler and HTTP server
-- **internal/http**:
-  - **controllers**: HTTP handlers, response formatting
-  - **routes**: Route registration with DI
-- **pkg**:
-  - **config**: Environment loading
-  - **database**: MySQL connection and migrations
-  - **models**: GORM models for Weather and Subscription
-  - **repository**: Interfaces and GORM-based implementations
-  - **services**: Business logic (weather retrieval, subscription management, notification evaluation)
-  - **utils**: Email sending utility
-- **internal/scheduler**: Cron job for daily alert checks
-- **wire.go**: Google Wire setup for dependency injection
+### Project Directory Structure
+
+```
+Weather-Alert-Service/
+├── cmd/
+│   └── app/
+│       └── main.go         # Entry point, bootstraps DI, starts scheduler and HTTP server
+├── internal/
+│   ├── http/
+│   │   ├── controllers/    # HTTP handlers (controllers)
+│   │   └── routes/         # Route registration with DI
+│   └── scheduler/          # Cron job for daily alert checks
+├── pkg/
+│   ├── config/             # Environment loading (Config struct)
+│   ├── database/           # MySQL connection and migrations
+│   ├── models/             # GORM models for Weather and Subscription
+│   ├── repository/         # Interfaces and GORM-based implementations
+│   ├── services/           # Business logic (weather retrieval, subscription management, notifications, unit tests)
+│   ├── utils/              # Email sending utility, error helpers
+│   └── validation/         # Custom validators for request binding
+├── app/                    # Google Wire setup and InitializeApp
+│   └── wire.go             # DI definitions
+├── wire.go                 # (Alternative root DI definitions, may be removed)
+├── docker-compose.yml      # Docker Compose for MySQL and MailHog
+├── .env.example            # Sample environment variables
+├── go.mod
+├── go.sum
+└── README.md               # Project overview, setup, usage
+```
+
+
 
 ## Key Architectural Decisions
 - **Dependency Injection (Google Wire)**: Ensures loose coupling, easier testing, and clear wiring of dependencies in `InitializeApp()`.
@@ -96,7 +133,7 @@ This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google
 - MySQL (or use Docker Compose)
 
 ### Environment Variables
-Create a `.env` file in project root:
+Create a `.env` file in project root(already created):
 ```ini
 DB_USER=root
 DB_PASS=
@@ -105,29 +142,29 @@ DB_PORT=3306
 DB_NAME=weatheralertservicebd
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=youremail@example.com
-SMTP_PASS=yourpassword
+SMTP_USER=
+SMTP_PASS=
+CRON_SCHEDULE=@daily    # default: once per day at midnight
+# For testing you can override to every minute:
+# CRON_SCHEDULE="*/1 * * * *"
 ```
 
-### Docker Compose
+### Docker Compose / Aap, DB, MailHog
+#### DO not fogert run docker
 ```bash
+git clone https://github.com/SviatoslavBeiar/Weather-Alert-Service.git
+cd Weather-Alert-Service
 docker-compose up -d
-docker-compose run app wire  # generate wire_gen.go
-go run cmd/app/main.go
 ```
+#### MySQL available at localhost:3306
 
-### Manual MySQL Setup
+#### MailHog UI available at http://localhost:8025
+
+#### App weatheralertservicebd Example req http://localhost:8080/weather?city=Kyiv if exit
+### Manual MySQL 
 ```sql
 CREATE DATABASE weatheralertservicebd;
 ```
-
-### Run Application
-```bash
-go install github.com/google/wire/cmd/wire@latest
-wire                # generate DI code
-go run cmd/app/main.go
-```
-
 ## API Endpoints
 
 | Method | Endpoint                         | Description                                     |
@@ -143,7 +180,7 @@ go run cmd/app/main.go
 ```json
 {
   "city": "Kyiv",
-  "temperature": 12.5,
+  "temperature": 1,
   "humidity": 60,
   "condition": "Clear"
 }
@@ -154,32 +191,15 @@ go run cmd/app/main.go
 {
   "email": "user@example.com",
   "city": "Kyiv",
-  "condition": "temp<0"
+  "condition": "temp<2"
 }
 ```
-
-## Testing
-- **Unit Tests**: `go test ./pkg/services` covers business logic
-- **Integration Tests**: `go test ./tests/integration` exercises full HTTP API
-
-```bash
-go test ./pkg/services -v
-go test ./tests/integration -v
-```
-
-## Swagger / OpenAPI (Optional)
-You can integrate Swagger UI by generating OpenAPI spec with `swaggo/swag`, then serve at `/docs`.
-
----
-Feel free to explore and extend the service according to your needs!
-
-
 ## Testing Scenarios
-
+#### Confirm email via MailHog
 | #  | Scenario                                                     | Precondition / Setup                                                                                                                                                    | Trigger / Input                                                                                           | Expected Outcome                                                                                             | Example Email Payload                                                                                                                      |
 |----|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| 1  | Verified subscription + condition matches → send alert        | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":4,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: `{"email":"alice@example.com","city":"Lviv","condition":"temp<5","verified":true}` | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • Email sent to `alice@example.com`<br/>• `LastSent` updated                                                   | **To:** alice@example.com<br/>**Subject:** Weather Alert for Lviv<br/>**Body:** Condition temp<5 met: current temp 4.0°C                     |
+| 1  | Verified subscription + condition matches → send alert        | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":4,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: `{"email":"alice@example.com","city":"Lviv","condition":"temp<5"}` | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • Email sent to `alice@example.com`<br/>• `LastSent` updated                                                   | **To:** alice@example.com<br/>**Subject:** Weather Alert for Lviv<br/>**Body:** Condition temp<5 met: current temp 4.0°C                     |
 | 2  | Verified subscription + condition does **not** match → no alert | **DB:**<br/>  • Weather: `{"city":"Lviv","temperature":6,"humidity":80,"condition":"Clear"}`<br/>  • Subscription: same as above                                         | Cron job runs → calls `EvaluateAndNotify(sub, weather)`                                                    | • No email sent<br/>• `LastSent` remains unchanged                                                              | *n/a*                                                                                                                                         |
-| 3  | Unverified subscription → never send alert                   | **DB:**<br/>  • Weather: any<br/>  • Subscription: `{"email":"bob@example.com","city":"Kyiv","condition":"rain","verified":false}`                                          | Cron job runs                                                                                              | • No email sent<br/>• `LastSent` remains `nil`                                                                  | *n/a*                                                                                                                                         |
+| 3  | Unverified subscription → never send alert                   | **DB:**<br/>  • Weather: any<br/>  • Subscription: `{"email":"bob@example.com","city":"Kyiv","condition":"Clear"}`                                          | Cron job runs                                                                                              | • No email sent<br/>• `LastSent` remains `nil`                                                                  | *n/a*                                                                                                                                         |
 
 
