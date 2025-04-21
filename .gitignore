@@ -1,0 +1,36 @@
+# Виконувані файли
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Файли середовища
+.env
+
+# Gophernotes
+*.ipynb
+
+# Бінарі в bin/
+bin/
+
+# Модулярі Go
+vendor/
+
+# IDE та редактори
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Налаштування ОС
+.DS_Store
+Thumbs.db
+
+# Файли Wire‑генератора
+wire_gen.go
+
+# Логи, тимчасовий кеш
+*.log
+*.tmp
