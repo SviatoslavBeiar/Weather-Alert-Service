@@ -131,8 +131,8 @@ DB_PORT=3306
 DB_NAME=weatheralertservicebd
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
-SMTP_USER=youremail@example.com
-SMTP_PASS=yourpassword
+SMTP_USER=
+SMTP_PASS=
 ```
 
 ### Docker Compose
