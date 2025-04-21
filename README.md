@@ -150,7 +150,7 @@ CRON_SCHEDULE=@daily    # default: once per day at midnight
 # if sub.LastSent != nil && now.Sub(*sub.LastSent) < 1*time.Minute {
 ```
 
-### Docker Compose / App(Weather-Alert-Service), DB(MySQL, MailHog
+### Docker Compose / App(Weather-Alert-Service), DB(MySQL), MailHog
 #### DO not fogert run docker
 ```bash
 git clone https://github.com/SviatoslavBeiar/Weather-Alert-Service.git
