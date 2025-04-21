@@ -1,12 +1,20 @@
 # Weather Alert Service
 
-## Overview
-Weather Alert Service is a Go-based microservice that provides:
-- Retrieving current weather data for cities
-- User subscriptions to weather alerts based on custom conditions with email confiramatioin
-- Automated daily email notifications when conditions are met
+# Overview
+Overview
+Weather Alert Service is a Go-based microservice focusing on verified email subscriptions before sending any alerts. Users must confirm their subscription via email; only then will they receive automated notifications when defined weather conditions are met.
 
-This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google Wire for dependency injection.
+## Key Features
+### Current Weather Retrieval
+- Fetch the latest weather data (temperature, humidity, sky condition) for any city.
+
+### Email‑Confirmed Subscriptions
+ - Users subscribe with a custom condition (e.g., temp<0), receive a confirmation email, and only verified email addresses will be alerted.
+
+### Automated Alerts
+- A daily cron job evaluates registered conditions and sends alerts only for verified subscriptions.
+
+### This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google Wire for dependency injection.
 
 ## Architecture
 
@@ -157,7 +165,7 @@ CREATE DATABASE weatheralertservicebd;
 ```json
 {
   "city": "Kyiv",
-  "temperature": 12.5,
+  "temperature": 1,
   "humidity": 60,
   "condition": "Clear"
 }
@@ -168,7 +176,7 @@ CREATE DATABASE weatheralertservicebd;
 {
   "email": "user@example.com",
   "city": "Kyiv",
-  "condition": "temp<0"
+  "condition": "temp<2"
 }
 ```
 ## Testing Scenarios
