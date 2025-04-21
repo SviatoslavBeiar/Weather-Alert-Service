@@ -3,7 +3,7 @@
 ## Overview
 Weather Alert Service is a Go-based microservice that provides:
 - Retrieving current weather data for cities
-- User subscriptions to weather alerts based on custom conditions
+- User subscriptions to weather alerts based on custom conditions with email confiramatioin
 - Automated daily email notifications when conditions are met
 
 This service uses Gin for HTTP handling, GORM for MySQL interactions, and Google Wire for dependency injection.
